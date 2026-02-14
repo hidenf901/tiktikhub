@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Крестики-нолики</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Баннер версии */
+        .version-banner {
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            transform: rotate(45deg);
+            padding: 5px 40px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .free-version .version-banner {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .vip-version .version-banner {
+            background: #FFD700;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .free-version h1 {
+            color: #4CAF50;
+        }
+        
+        .vip-version h1 {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* Статистика (только для VIP) */
+        .stats {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            border: 2px solid #FFD700;
+            animation: glow 2s infinite;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #FFD700; }
+            50% { box-shadow: 0 0 20px #FFD700; }
+            100% { box-shadow: 0 0 5px #FFD700; }
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        /* Выбор скинов (только для VIP) */
+        .skin-selector {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .skin-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .skin-option:hover {
+            background: #e9ecef;
+        }
+        
+        .skin-option.active {
+            background: #FFD700;
+            color: white;
+        }
+        
+        .skin-preview {
+            width: 50px;
+            height: 50px;
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+            background: #dee2e6;
+            padding: 10px;
+            border-radius: 15px;
+        }
+        
+        .cell {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 0 #dee2e6;
+        }
+        
+        .cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 0 #dee2e6;
+        }
+        
+        .cell:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 0 #dee2e6;
+        }
+        
+        /* Анимация для VIP */
+        .vip-version .cell {
+            animation: appear 0.3s ease;
+        }
+        
+        @keyframes appear {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .cell.x-win {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+        
+        .cell.o-win {
+            background: linear-gradient(135deg, #4ecdc4, #6ee7e7);
+            color: white;
+        }
+        
+        .message {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .free-version .message {
+            color: #4CAF50;
+        }
+        
+        .vip-version .message {
+            color: #FFD700;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .free-version .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .vip-version .btn-primary {
+            background: #FFD700;
+            color: #333;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        
+        /* Реклама для FREE версии */
+        .ad-banner {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px dashed #4CAF50;
+            text-align: center;
+        }
+        
+        .ad-text {
+            font-size: 1.2em;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .ad-button {
+            display: inline-block;
+            padding: 10px 30px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+        }
+        
+        /* Звуковой плеер (скрытый, для VIP) */
+        #soundPlayer {
+            display: none;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <!-- Версия будет добавлена через JS -->
+        
+        <h1 id="gameTitle">Крестики-нолики</h1>
+        
+        <!-- Статистика (только для VIP) -->
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-label">Победы X</div>
+                <div class="stat-value" id="winsX">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Победы O</div>
+                <div class="stat-value" id="winsO">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Ничьи</div>
+                <div class="stat-value" id="draws">0</div>
+            </div>
+        </div>
+        
+        <!-- Выбор скинов (только для VIP) -->
+        <div id="skinSelector" class="skin-selector" style="display: none;">
+            <div class="skin-option active" onclick="selectSkin('classic', 'X', 'O')">
+                <div class="skin-preview">X | O</div>
+                <div>Классика</div>
+            </div>
+            <div class="skin-option" onclick="selectSkin('emoji', '❌', '⭕')">
+                <div class="skin-preview">❌ | ⭕</div>
+                <div>Эмодзи</div>
+            </div>
+            <div class="skin-option" onclick="selectSkin('stars', '⭐', '🌟')">
+                <div class="skin-preview">⭐ | 🌟</div>
+                <div>Звезды</div>
+            </div>
+            <div class="skin-option" onclick="selectSkin('hearts', '❤️', '💙')">
+                <div class="skin-preview">❤️ | 💙</div>
+                <div>Сердечки</div>
+            </div>
+        </div>
+        
+        <!-- Игровое поле -->
+        <div class="board" id="board">
+            <div class="cell" onclick="makeMove(0)" id="cell0"></div>
+            <div class="cell" onclick="makeMove(1)" id="cell1"></div>
+            <div class="cell" onclick="makeMove(2)" id="cell2"></div>
+            <div class="cell" onclick="makeMove(3)" id="cell3"></div>
+            <div class="cell" onclick="makeMove(4)" id="cell4"></div>
+            <div class="cell" onclick="makeMove(5)" id="cell5"></div>
+            <div class="cell" onclick="makeMove(6)" id="cell6"></div>
+            <div class="cell" onclick="makeMove(7)" id="cell7"></div>
+            <div class="cell" onclick="makeMove(8)" id="cell8"></div>
+        </div>
+        
+        <!-- Сообщение -->
+        <div class="message" id="message">Ход игрока X</div>
+        
+        <!-- Кнопки -->
+        <div class="buttons">
+            <button class="btn btn-primary" onclick="resetGame()">🔄 Новая игра</button>
+            <button class="btn btn-secondary" onclick="goBack()">⬅️ Назад в меню</button>
+        </div>
+        
+        <!-- Реклама (только для FREE) -->
+        <div id="adBanner" class="ad-banner" style="display: none;">
+            <div class="ad-text">🔥 Реклама</div>
+            <div>Играй в другие игры бесплатно!</div>
+            <a href="#" class="ad-button" onclick="alert('Переход на рекламу')">Перейти</a>
+        </div>
+        
+        <!-- Звуковой плеер (для VIP) -->
+        <audio id="soundPlayer">
+            <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwNAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//5kAAAA8AAA0gAAAA0EFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUf/5kAAAA8AAk0gAAA0EFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU" type="audio/mp3">
+        </audio>
+    </div>
+
+    <script>
+        // Получаем версию из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const version = urlParams.get('version') || 'free';
+        
+        // Применяем стили в зависимости от версии
+        const gameContainer = document.getElementById('gameContainer');
+        gameContainer.classList.add(version + '-version');
+        
+        // Добавляем баннер версии
+        const banner = document.createElement('div');
+        banner.className = 'version-banner';
+        banner.textContent = version === 'free' ? 'FREE' : 'VIP';
+        gameContainer.appendChild(banner);
+        
+        // Показываем VIP элементы только для VIP версии
+        if (version === 'vip') {
+            document.getElementById('stats').style.display = 'flex';
+            document.getElementById('skinSelector').style.display = 'flex';
+            document.getElementById('gameTitle').style.textShadow = '0 0 10px #FFD700';
+        } else {
+            document.getElementById('adBanner').style.display = 'block';
+        }
+        
+        // Игровые переменные
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let xSkin = 'X';
+        let oSkin = 'O';
+        
+        // Статистика для VIP
+        let stats = {
+            winsX: 0,
+            winsO: 0,
+            draws: 0
+        };
+        
+        // Загружаем статистику для VIP
+        if (version === 'vip' && localStorage.getItem('ticTacToeStats')) {
+            stats = JSON.parse(localStorage.getItem('ticTacToeStats'));
+            updateStatsDisplay();
+        }
+        
+        function makeMove(index) {
+            if (!gameActive) return;
+            
+            const cell = document.getElementById(`cell${index}`);
+            
+            if (board[index] === '') {
+                // Звук для VIP
+                if (version === 'vip') {
+                    playSound();
+                }
+                
+                board[index] = currentPlayer;
+                cell.textContent = currentPlayer === 'X' ? xSkin : oSkin;
+                
+                // Анимация для VIP
+                if (version === 'vip') {
+                    cell.style.animation = 'appear 0.3s ease';
+                    setTimeout(() => {
+                        cell.style.animation = '';
+                    }, 300);
+                }
+                
+                if (checkWin()) {
+                    gameActive = false;
+                    document.getElementById('message').textContent = `Игрок ${currentPlayer} победил! 🎉`;
+                    
+                    // Подсветка победных клеток для VIP
+                    if (version === 'vip') {
+                        highlightWinningCells();
+                    }
+                    
+                    // Обновление статистики для VIP
+                    if (version === 'vip') {
+                        if (currentPlayer === 'X') {
+                            stats.winsX++;
+                        } else {
+                            stats.winsO++;
+                        }
+                        saveStats();
+                    }
+                } else if (isBoardFull()) {
+                    gameActive = false;
+                    document.getElementById('message').textContent = 'Ничья! 🤝';
+                    
+                    // Обновление статистики для VIP
+                    if (version === 'vip') {
+                        stats.draws++;
+                        saveStats();
+                    }
+                } else {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                    document.getElementById('message').textContent = `Ход игрока ${currentPlayer}`;
+                }
+            }
+        }
+        
+        function checkWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Горизонтали
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Вертикали
+                [0, 4, 8], [2, 4, 6] // Диагонали
+            ];
+            
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return board[a] !== '' && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+        
+        function getWinningPattern() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] !== '' && board[a] === board[b] && board[a] === board[c]) {
+                    return pattern;
+                }
+            }
+            return null;
+        }
+        
+        function highlightWinningCells() {
+            const pattern = getWinningPattern();
+            if (pattern) {
+                pattern.forEach(index => {
+                    const cell = document.getElementById(`cell${index}`);
+                    cell.classList.add(currentPlayer === 'X' ? 'x-win' : 'o-win');
+                });
+            }
+        }
+        
+        function isBoardFull() {
+            return board.every(cell => cell !== '');
+        }
+        
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('message').textContent = 'Ход игрока X';
+            
+            // Очищаем клетки
+            for (let i = 0; i < 9; i++) {
+                const cell = document.getElementById(`cell${i}`);
+                cell.textContent = '';
+                cell.classList.remove('x-win', 'o-win');
+            }
+            
+            // Звук для VIP
+            if (version === 'vip') {
+                playSound();
+            }
+        }
+        
+        function selectSkin(name, xChar, oChar) {
+            if (version !== 'vip') return;
+            
+            xSkin = xChar;
+            oSkin = oChar;
+            
+            // Обновляем активный скин
+            document.querySelectorAll('.skin-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Обновляем отображение клеток
+            for (let i = 0; i < 9; i++) {
+                const cell = document.getElementById(`cell${i}`);
+                if (board[i] === 'X') {
+                    cell.textContent = xSkin;
+                } else if (board[i] === 'O') {
+                    cell.textContent = oSkin;
+                }
+            }
+            
+            playSound();
+        }
+        
+        function playSound() {
+            if (version === 'vip') {
+                const sound = document.getElementById('soundPlayer');
+                sound.currentTime = 0;
+                sound.play().catch(e => {});
+            }
+        }
+        
+        function updateStatsDisplay() {
+            document.getElementById('winsX').textContent = stats.winsX;
+            document.getElementById('winsO').textContent = stats.winsO;
+            document.getElementById('draws').textContent = stats.draws;
+        }
+        
+        function saveStats() {
+            if (version === 'vip') {
+                localStorage.setItem('ticTacToeStats', JSON.stringify(stats));
+                updateStatsDisplay();
+            }
+        }
+        
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
