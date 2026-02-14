@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Игровой портал</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 50px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease;
+        }
+        
+        .menu {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 350px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+        
+        .card.free {
+            border-color: #4CAF50;
+        }
+        
+        .card.vip {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, #fff 0%, #fff9e6 100%);
+        }
+        
+        .card.free:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+        }
+        
+        .card.vip:hover {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .free .badge {
+            background: #4CAF50;
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .vip .badge {
+            background: #FFD700;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        h2 {
+            font-size: 2em;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            padding-left: 20px;
+        }
+        
+        .features li {
+            list-style: none;
+            margin: 15px 0;
+            font-size: 1.1em;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features li::before {
+            content: "✓";
+            font-weight: bold;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+        }
+        
+        .vip .features li::before {
+            background: #FFD700;
+            color: #333;
+        }
+        
+        .features li.disabled {
+            color: #999;
+        }
+        
+        .features li.disabled::before {
+            content: "✗";
+            background: #f44336;
+        }
+        
+        .price {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 30px 0;
+        }
+        
+        .free .price {
+            color: #4CAF50;
+        }
+        
+        .vip .price {
+            color: #FFD700;
+        }
+        
+        .price small {
+            font-size: 0.5em;
+            color: #999;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .free .btn {
+            background: #4CAF50;
+        }
+        
+        .free .btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        
+        .vip .btn {
+            background: #FFD700;
+            color: #333;
+        }
+        
+        .vip .btn:hover {
+            background: #ffc800;
+            transform: scale(1.05);
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .note {
+            margin-top: 50px;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1em;
+            animation: fadeIn 2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 ИГРОВОЙ ПОРТАЛ 🎮</h1>
+        
+        <div class="menu">
+            <!-- Бесплатная версия -->
+            <div class="card free" onclick="selectVersion('free')">
+                <div class="badge">FREE</div>
+                <h2>Бесплатная версия</h2>
+                <ul class="features">
+                    <li>Крестики-нолики</li>
+                    <li class="disabled">Скины для X и O</li>
+                    <li class="disabled">Анимация ходов</li>
+                    <li class="disabled">Статистика игр</li>
+                    <li class="disabled">Звуковые эффекты</li>
+                    <li>Реклама присутствует</li>
+                </ul>
+                <div class="price">0 ₽ <small>навсегда</small></div>
+                <button class="btn" onclick="event.stopPropagation(); window.location.href='game.html?version=free'">Играть бесплатно</button>
+            </div>
+            
+            <!-- VIP версия -->
+            <div class="card vip" onclick="selectVersion('vip')">
+                <div class="badge">VIP</div>
+                <h2>Премиум версия</h2>
+                <ul class="features">
+                    <li>Крестики-нолики</li>
+                    <li>✨ Скины для X и O</li>
+                    <li>✨ Анимация ходов</li>
+                    <li>✨ Статистика игр</li>
+                    <li>✨ Звуковые эффекты</li>
+                    <li>🚫 Без рекламы</li>
+                </ul>
+                <div class="price">VIP <small>доступно</small></div>
+                <button class="btn" onclick="event.stopPropagation(); window.location.href='game.html?version=vip'">Играть VIP</button>
+            </div>
+        </div>
+        
+        <div class="note">
+            👆 Нажми на карточку или кнопку, чтобы выбрать версию
+        </div>
+    </div>
+
+    <script>
+        function selectVersion(version) {
+            if (version === 'free') {
+                window.location.href = 'game.html?version=free';
+            } else {
+                window.location.href = 'game.html?version=vip';
+            }
+        }
+    </script>
+</body>
+</html>
